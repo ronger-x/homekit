@@ -10,21 +10,21 @@
 将脚本下载到当前目录并赋可执行权限：
 
 ```bash
-curl -L -o wol_plus.sh https://raw.githubusercontent.com/ronger-x/homekit/main/network/wol_plus.sh
+curl -L -o wol_plus.sh https://raw.githubusercontent.com/ronger-x/homekit/master/network/wol_plus.sh
 chmod +x wol_plus.sh
 ```
 
 将脚本安装到 `/usr/local/bin`（需要 sudo）：
 
 ```bash
-sudo curl -L -o /usr/local/bin/wol_plus.sh https://raw.githubusercontent.com/ronger-x/homekit/main/network/wol_plus.sh
+sudo curl -L -o /usr/local/bin/wol_plus.sh https://raw.githubusercontent.com/ronger-x/homekit/master/network/wol_plus.sh
 sudo chmod +x /usr/local/bin/wol_plus.sh
 ```
 
 使用 `wget` 的等效命令：
 
 ```bash
-wget -O wol_plus.sh https://raw.githubusercontent.com/ronger-x/homekit/main/network/wol_plus.sh
+wget -O wol_plus.sh https://raw.githubusercontent.com/ronger-x/homekit/master/network/wol_plus.sh
 chmod +x wol_plus.sh
 ```
 
