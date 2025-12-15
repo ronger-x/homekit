@@ -23,6 +23,7 @@ sudo chmod +x /usr/local/bin/wol_plus.sh
 
 使用 `wget` 的等效命令：
 
+```bash
 wget -O wol_plus.sh https://raw.githubusercontent.com/ronger-x/homekit/main/network/wol_plus.sh
 chmod +x wol_plus.sh
 ```
