@@ -180,7 +180,11 @@ while getopts "i:lsa:h" opt; do
             ;;
         l)
             echo -e "${YELLOW}已保存的设备 ($CONFIG_FILE):${NC}"
-            grep -v "^#" "$CONFIG_FILE" | column -t
+            if command -v column >/dev/null 2>&1; then
+                grep -v "^#" "$CONFIG_FILE" | column -t
+            else
+                grep -v "^#" "$CONFIG_FILE"
+            fi
             exit 0
             ;;
         s)
