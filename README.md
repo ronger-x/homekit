@@ -5,6 +5,8 @@
 组件示例:
 
 - `network/wol_plus.sh` — 一个增强的 Wake-on-LAN 工具，支持配置文件别名、ARP 扫描、通过指定接口发送、交互式菜单以及自动检测并尝试安装 `netcat`。
+- `network/routeros_dhcp_hex.sh` — 将 IPv4 地址转换为 RouterOS DHCP option 使用的十六进制格式，例如 `192.168.88.4 -> 0xC0A85804`。
+- `network/routeros-openclash-dhcp.md` — RouterOS 上按单设备下发 OpenClash 网关/DNS 的维护手册，包含添加、删除、验证和清理旧策略的步骤。
 
 ## 下载脚本（快速命令）
 将脚本下载到当前目录并赋可执行权限：
