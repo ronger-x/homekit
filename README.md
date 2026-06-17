@@ -7,6 +7,12 @@
 - `network/wol_plus.sh` — 一个增强的 Wake-on-LAN 工具，支持配置文件别名、ARP 扫描、通过指定接口发送、交互式菜单以及自动检测并尝试安装 `netcat`。
 - `network/routeros_dhcp_hex.sh` — 将 IPv4 地址转换为 RouterOS DHCP option 使用的十六进制格式，例如 `192.168.88.4 -> 0xC0A85804`。
 - `network/routeros-openclash-dhcp.md` — RouterOS 上按单设备下发 OpenClash 网关/DNS 的维护手册，包含添加、删除、验证和清理旧策略的步骤。
+- `network/ospf-split-routing-deployment.md` — **OSPF 智能分流部署指南**，基于 PVE LXC 容器 + BIRD + sing-box 实现国内外流量自动分流，替代 Mangle 策略路由方案。
+- `network/ospf-split-routing-maintenance.md` — **OSPF 智能分流维护手册**，包含日常监控、IP 列表更新、故障排查、性能监控等运维操作。
+- `network/sing-box-configuration-guide.md` — **sing-box 配置指南**，详细说明多协议代理配置、节点管理、自动选择、故障排查等。
+- `network/bird-ospf-template.conf` — BIRD 2.x OSPF 配置模板（支持 OSPFv2/v3 双栈）。
+- `network/sing-box-template.json` — sing-box 配置模板（支持 Shadowsocks/VMess/Trojan/VLESS 等多协议）。
+- `network/nftables-ospf.conf` — nftables 防火墙配置模板（用于 OSPF 容器 NAT 和转发）。
 
 ## 下载脚本（快速命令）
 将脚本下载到当前目录并赋可执行权限：

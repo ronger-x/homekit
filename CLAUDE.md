@@ -11,13 +11,110 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The scripts assume a specific network topology:
 
 - **RouterOS gateway**: `192.168.88.1` (MikroTik RouterOS 7.x)
-- **OpenClash gateway**: `192.168.88.4` (transparent proxy for select devices)
+- **OpenClash gateway**: `192.168.88.169` (legacy transparent proxy, replaced by OSPF split routing)
+- **OSPF split router**: `192.168.88.250` (PVE LXC container with BIRD + WireGuard for intelligent traffic routing)
+- **DNS server**: `192.168.88.243` (AdGuard Home + MosDNS for DNS split resolution)
 - **LAN subnet**: `192.168.88.0/24`
 - **DHCP server**: `defconf` (RouterOS default)
 
-The infrastructure supports selective routing: most devices use `192.168.88.1` as gateway/DNS, while specific devices can be configured via DHCP options to use `192.168.88.4` (OpenClash) as their gateway and DNS server.
+### Traffic Routing Architecture
+
+**Current approach (OSPF-based split routing):**
+
+The network uses OSPF (Open Shortest Path First) for intelligent traffic splitting:
+- A dedicated LXC container (192.168.88.250) runs BIRD routing daemon
+- BIRD advertises non-China IP routes to RouterOS via OSPFv2 (IPv4) and OSPFv3 (IPv6)
+- RouterOS learns these routes and forwards overseas traffic to the OSPF container
+- The container routes overseas traffic through WireGuard tunnel, while domestic traffic goes direct
+- Automatic failover: if the container dies, OSPF routes are withdrawn within 10-40 seconds
+
+**Benefits over previous Mangle PBR approach:**
+- No performance impact (preserves RouterOS Fast Path/Fast Track)
+- Fast convergence (thousands of routes sync in seconds)
+- Incremental updates (no connection interruption)
+- Full IPv6 support via OSPFv3
+- Automatic health checking and failover
+
+The infrastructure also supports per-device routing via DHCP options (legacy): specific devices can be configured via DHCP options to use a different gateway and DNS server.
 
 ## Key Components
+
+### network/ospf-split-routing-deployment.md
+
+Complete deployment guide for OSPF-based intelligent traffic splitting. Documents:
+- PVE LXC container creation (VMID 250, IP 192.168.88.250)
+- WireGuard tunnel configuration
+- BIRD routing daemon setup (OSPFv2 + OSPFv3)
+- RouterOS OSPF configuration
+- Full testing and verification procedures
+- Migration from Mangle PBR to OSPF
+
+### network/ospf-split-routing-maintenance.md
+
+Operational maintenance manual for the OSPF split routing system. Covers:
+- Daily monitoring (OSPF neighbors, route counts, tunnel status)
+- Updating non-China IP lists with nchnroutes
+- Manual operations (disable/enable OSPF, force specific IPs direct or via tunnel)
+- Comprehensive troubleshooting scenarios
+- Performance monitoring and alerting
+- Backup and disaster recovery procedures
+
+### network/sing-box-configuration-guide.md
+
+完整的 sing-box 配置指南，用于 OSPF 容器的隧道客户端。包含：
+- sing-box 安装步骤（预编译二进制/包管理器）
+- 多协议节点配置（Shadowsocks, VMess, VLESS, Trojan, Hysteria）
+- 出站选择器配置（urltest 自动选择/selector 手动切换）
+- TUN 接口配置（auto_route: false，由 BIRD 管理路由）
+- systemd 服务配置
+- 完整的验证和测试步骤
+- 高级功能（geosite/geoip 分流、多出口策略、Clash API）
+- 故障排查（TUN 接口、节点连接、流量转发、自动切换）
+- 性能优化和日常维护
+
+### network/sing-box-template.json
+
+sing-box 配置模板文件，包含：
+- TUN 入站配置（tun0 接口，auto_route: false）
+- urltest 出站选择器（自动选择最低延迟节点）
+- 多种协议示例节点配置
+- DNS 配置（远程 DoH + 本地 DNS）
+- 路由规则配置
+
+### network/bird-ospf-template.conf
+
+BIRD 2.x configuration template for OSPF routing. Includes:
+- OSPFv2 (IPv4) and OSPFv3 (IPv6) protocol definitions
+- Static route imports from nchnroutes-generated files
+- OSPF authentication settings
+- Kernel routing table synchronization
+
+### network/wireguard-template.conf
+
+WireGuard VPN configuration template for the OSPF container. Features:
+- Split AllowedIPs configuration (0.0.0.0/1 + 128.0.0.0/1) to preserve default route
+- MTU optimization for tunnel traffic
+- PersistentKeepalive settings for NAT traversal
+
+**Note:** This template is provided for reference. The recommended approach is to use sing-box for multi-protocol support and automatic failover.
+
+### network/nftables-ospf.conf
+
+nftables firewall configuration for the OSPF container. Implements:
+- MSS clamping to prevent MTU issues
+- SNAT/masquerade for WireGuard egress traffic
+- Stateful connection tracking
+- LAN → WireGuard forwarding rules
+
+### network/routeros-cn-policy-routing.md (Legacy)
+
+**Note:** This Mangle-based policy routing approach has been replaced by OSPF split routing for better performance and reliability. Kept for reference and rollback scenarios.
+
+Documents the legacy approach using:
+- 4,283 China IP address list (cnip)
+- Mangle rules for packet marking
+- Routing table with via-openclash routing mark
+- Performance impact: disables Fast Path/Fast Track
 
 ### network/wol_plus.sh
 

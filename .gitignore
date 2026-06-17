@@ -7,3 +7,7 @@
 ### Environment Variables ###
 .env
 .env.local
+
+# Network topology visualization (auto-generated)
+homekit-network*.html
+homekit-network*.json
