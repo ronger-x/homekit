@@ -305,9 +305,15 @@ pct_exec "systemctl restart nftables"
 echo ""
 echo "Step 8: 解析节点 IP 并生成路由表..."
 
-# 在容器内解析域名
+# 在容器内解析域名并添加保护网段
 pct_exec 'cat > /tmp/get_node_ips.sh << '\''SCRIPT'\''
 #!/bin/bash
+# 添加需要保护的网段（VPN/私有网络）
+cat > /tmp/exclude_ips.txt << '\''EXCLUDE'\''
+100.64.0.0/10
+EXCLUDE
+
+# 解析节点 IP 并追加
 cat /etc/sing-box/config.json | grep "\"server\":" | grep -oE "[a-zA-Z0-9.-]+" | sort -u | while read domain; do
     if [[ "$domain" =~ ^[0-9.]+$ ]]; then
         echo "$domain/32"
@@ -320,7 +326,7 @@ cat /etc/sing-box/config.json | grep "\"server\":" | grep -oE "[a-zA-Z0-9.-]+" |
             echo "$ip/32"
         fi
     fi
-done | sort -u > /tmp/exclude_ips.txt
+done | sort -u >> /tmp/exclude_ips.txt
 SCRIPT'
 pct_exec "chmod +x /tmp/get_node_ips.sh"
 pct_exec "/tmp/get_node_ips.sh"

@@ -145,13 +145,52 @@ cd /tmp
 git clone https://github.com/dndx/nchnroutes.git
 cd nchnroutes
 
-# 生成新的路由文件（记得排除 WireGuard 服务器 IP）
-python3 nchnroutes.py \
-  --exclude <WIREGUARD_SERVER_IP>/32 \
-  --output bird
+# ⚠️ 重要：创建排除列表
+cat > /tmp/exclude_ips.txt << 'EOF'
+# Tailscale CGNAT 地址段（必须排除！）
+100.64.0.0/10
+
+# 如果使用其他 VPN，也需要排除：
+# 172.22.0.0/16    # Zerotier
+# 10.x.x.x/x       # 其他私有网络
+EOF
+
+# 追加代理节点 IP（如果使用 sing-box）
+grep '"server"' /etc/sing-box/config.json 2>/dev/null | \
+  grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | \
+  awk '{print $1"/32"}' >> /tmp/exclude_ips.txt
+
+# 或追加 WireGuard 服务器 IP
+# echo "<WIREGUARD_SERVER_IP>/32" >> /tmp/exclude_ips.txt
+
+# 生成新的路由文件
+python3 nchnroutes.py --exclude-file /tmp/exclude_ips.txt --output bird
 
 # 检查文件
 wc -l routes4.conf routes6.conf
+```
+
+**⚠️ 关键警告：必须排除的网段**
+
+| 网段 | 用途 | 后果（如不排除） |
+|------|------|-----------------|
+| `100.64.0.0/10` | **Tailscale/CGNAT** | ❌ Tailscale 完全失联，无法访问设备 |
+| `172.22.0.0/16` | Zerotier | ❌ Zerotier 网络中断 |
+| `10.0.0.0/8` | 企业 VPN | ❌ VPN 连接断开 |
+
+**为什么必须排除**：
+- nchnroutes 将这些段识别为"非中国 IP"
+- OSPF 将其宣告给 RouterOS
+- RouterOS 将这些流量路由到代理容器
+- VPN 流量被错误转发到代理隧道
+- **结果：VPN/私有网络完全失联**
+
+**如果忘记排除，紧急恢复**：
+```routeros
+# 在 RouterOS 上立即禁用 OSPF
+/routing/ospf/instance/disable ospf-split-v2
+/routing/ospf/instance/disable ospf-split-v3
+# 然后重新生成路由表（添加排除），再重新启用
 ```
 
 **2. 对比变化：**
