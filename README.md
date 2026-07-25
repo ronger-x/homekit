@@ -8,7 +8,7 @@
 
 - [`docs/powershell-posh-git.md`](docs/powershell-posh-git.md) — PowerShell 7 中 posh-git 的安装、按需加载配置、启动耗时验证与故障排查。
 - `network/wol_plus.sh` — 一个增强的 Wake-on-LAN 工具，支持配置文件别名、ARP 扫描、通过指定接口发送、交互式菜单以及自动检测并尝试安装 `netcat`。
-- `network/routeros_dhcp_hex.sh` — 将 IPv4 地址转换为 RouterOS DHCP option 使用的十六进制格式，例如 `192.168.88.4 -> 0xC0A85804`。
+- `network/routeros_dhcp_hex.sh` — 将 IPv4 地址转换为 RouterOS DHCP option 使用的十六进制格式，例如 `192.168.88.169 -> 0xC0A858A9`。
 - `network/msf-test-vm.md` — MSF 测试 VM 维护手册，记录 VMID `117`、`192.168.88.222` WebUI、初始化步骤、RouterOS 单设备测试接入和回滚方式。
 - `network/ubuntu-2404-vm.md` — Ubuntu 24.04 通用 VM 维护记录，记录 VMID `112`、`192.168.88.39`、8C16G/200G `storage1` 规格、cloud-init、guest agent 和 NovaReel2 dev service 资源保护。
 - `network/onedev-vm-migration.md` — OneDev 迁移维护记录，记录 VMID `119`、`192.168.88.37`、4C8G、RouterOS 走 `192.168.88.169` 网关/DNS、`/opt/docker/` 数据迁移和验证结果。

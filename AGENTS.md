@@ -138,8 +138,8 @@ Usage patterns:
 Converts IPv4 addresses to RouterOS DHCP option hex format (required for DHCP option values).
 
 ```bash
-./network/routeros_dhcp_hex.sh 192.168.88.4
-# Output: 0xC0A85804
+./network/routeros_dhcp_hex.sh 192.168.88.169
+# Output: 0xC0A858A9
 ```
 
 ### network/routeros-openclash-dhcp.md
@@ -206,7 +206,7 @@ When adding RouterOS-related utilities or documentation:
 - Always specify full paths: `/ip/dhcp-server/lease`, not shortcuts
 - Use `print detail where <filter>` for precise queries
 - Document the `code=` values for DHCP options (standard codes: 3=gateway, 6=DNS, 15=domain, etc.)
-- Hex values in RouterOS display as lowercase without `0x` prefix in output (e.g., `c0a85804`)
+- Hex values in RouterOS display as lowercase without `0x` prefix in output (e.g., `c0a858a9`)
 - Include verification commands after destructive changes
 - Note compatibility: scripts assume RouterOS 7.x syntax
 

@@ -1,7 +1,8 @@
 # OneDev 迁移到 PVE VMID 119 维护记录
 
-本文记录 2026-07-09 将 `root@154.64.253.222` 上的 OneDev
-服务从 `/opt/docker/` 迁移到 PVE 新 VM 的过程和当前运行状态。
+本文记录 2026-07-09 将远程源机上的 OneDev 服务从 `/opt/docker/`
+迁移到 PVE 新 VM 的过程和当前运行状态。源机地址和 SSH 用户只通过
+`SOURCE_HOST`、`SOURCE_SSH_USER` 变量提供，不写入仓库。
 
 ## 资源
 
@@ -101,7 +102,7 @@ http://192.168.88.37:6610/
 源服务：
 
 ```text
-source: root@154.64.253.222:/opt/docker/
+source: ${SOURCE_SSH_USER}@${SOURCE_HOST}:/opt/docker/
 old container: stopped and removed with docker compose down
 ```
 
@@ -141,7 +142,9 @@ Error caching branch schedules (project: useatdak/aura, branch: master)
 停止并移除。若需要在产生新写入前回滚，可在源机执行：
 
 ```bash
-ssh root@154.64.253.222
+SOURCE_HOST="<SOURCE_HOST>"
+SOURCE_SSH_USER="<SOURCE_SSH_USER>"
+ssh "${SOURCE_SSH_USER}@${SOURCE_HOST}"
 cd /opt/docker
 docker compose -f docker-compose.yaml up -d
 ```
