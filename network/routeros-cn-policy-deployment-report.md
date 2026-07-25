@@ -1,5 +1,7 @@
 # RouterOS 策略路由部署完成报告
 
+> 状态：历史记录。Mangle PBR 已停用，PaoPaoDNS/PaoPaoGateWay 也已删除。
+
 ## 部署日期
 2026-06-17
 
@@ -254,7 +256,7 @@ ssh root@192.168.88.169 '/etc/init.d/openclash status'
 
 ## 相关配置文件
 
-- **RouterOS 脚本**: `network/routeros-cn-policy-en.rsc`（英文版）
+- **RouterOS 脚本**: 历史英文版 `network/routeros-cn-policy-en.rsc` 已不再保留；仅保留 `network/routeros-cn-policy-full.rsc` 配置快照。
 - **IP 列表原始数据**: `/tmp/cn-ip.txt`（4,283 条）
 - **分片脚本**: `/tmp/routeros-part-*.rsc`（9 个文件，每个 500 行）
 - **部署文档**: `network/routeros-cn-policy-routing.md`
@@ -263,7 +265,7 @@ ssh root@192.168.88.169 '/etc/init.d/openclash status'
 
 ### 与 DNS 分流方案的配合
 
-当前网络已部署 AdGuard Home + MosDNS DNS 分流（192.168.88.243），完整流量路径：
+本历史部署曾使用 AdGuard Home + MosDNS DNS 分流（192.168.88.243），完整流量路径：
 
 ```
 客户端请求 google.com

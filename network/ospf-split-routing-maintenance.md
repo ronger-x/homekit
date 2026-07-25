@@ -1,5 +1,7 @@
 # OSPF 智能分流维护手册
 
+> 状态：历史参考。OSPF 分流方案已放弃，PaoPaoDNS/PaoPaoGateWay 也已删除。
+
 ## 概述
 
 本文档记录 OSPF 智能分流方案的日常维护、监控和故障排查操作。

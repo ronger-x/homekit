@@ -1,0 +1,17 @@
+# Copy this file to /opt/microsoft-rewards-script/compose.override.yaml
+# on 192.168.88.243. Keep RUN_ON_START=false until .env contains real
+# account credentials.
+services:
+    microsoft-rewards-script:
+        env_file:
+            - .env
+        environment:
+            TZ: "Asia/Shanghai"
+            NODE_ENV: "production"
+            CRON_SCHEDULE: "0 7 * * *"
+            RUN_ON_START: "false"
+            SKIP_RANDOM_SLEEP: "false"
+            MIN_SLEEP_MINUTES: "5"
+            MAX_SLEEP_MINUTES: "50"
+            STUCK_PROCESS_TIMEOUT_HOURS: "8"
+            CONFIG_QUERY_ENGINES: "china,local"

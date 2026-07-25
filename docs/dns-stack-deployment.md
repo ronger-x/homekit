@@ -1,5 +1,7 @@
 # DNS 分流方案部署文档
 
+> 状态：历史参考。本文记录旧 AdGuard Home + MosDNS 链路；PaoPaoDNS/PaoPaoGateWay 也已删除。
+
 ## 架构概述
 
 ```
