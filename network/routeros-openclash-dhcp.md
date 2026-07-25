@@ -2,10 +2,12 @@
 
 本文记录在 RouterOS 7.x 上，把指定 LAN 客户端的 DHCP 网关和 DNS 直接下发为 OpenClash 网关的方法。
 
+> 状态：兼容方案，仅用于明确需要 OpenClash 的单设备例外，不改变 RouterOS 全局 DHCP。
+
 当前环境约定：
 
 - RouterOS 管理地址：`192.168.88.1`
-- OpenClash 网关/DNS：`192.168.88.4`
+- OpenClash 网关/DNS：`192.168.88.169`
 - DHCP server：`defconf`
 - LAN 网段：`192.168.88.0/24`
 - 默认 DHCP network 仍保持 `gateway=192.168.88.1 dns-server=192.168.88.1`
@@ -13,25 +15,25 @@
 
 ## 当前使用的 DHCP Option
 
-以下 option 用于把网关和 DNS 下发为 `192.168.88.4`：
+以下 option 用于把网关和 DNS 下发为 `192.168.88.169`：
 
 ```routeros
 /ip/dhcp-server/option
-add name=openclash-gateway code=3 value=0xC0A85804
-add name=openclash-dns code=6 value=0xC0A85804
+add name=openclash-gateway code=3 value=0xC0A858A9
+add name=openclash-dns code=6 value=0xC0A858A9
 ```
 
 说明：
 
 - `code=3` 是 DHCP Router/Gateway option。
 - `code=6` 是 DHCP DNS Server option。
-- `0xC0A85804` 是 `192.168.88.4` 的十六进制表示。
+- `0xC0A858A9` 是 `192.168.88.169` 的十六进制表示。
 
 可以用仓库脚本转换 IPv4：
 
 ```bash
-./network/routeros_dhcp_hex.sh 192.168.88.4
-# 0xC0A85804
+./network/routeros_dhcp_hex.sh 192.168.88.169
+# 0xC0A858A9
 ```
 
 如果 option 已存在，只需要复用，不要重复创建。
@@ -40,8 +42,8 @@ add name=openclash-dns code=6 value=0xC0A85804
 
 目标：让某个客户端通过 DHCP 直接拿到：
 
-- 默认网关：`192.168.88.4`
-- DNS：`192.168.88.4`
+- 默认网关：`192.168.88.169`
+- DNS：`192.168.88.169`
 
 ### 1. 查找当前 lease
 
@@ -68,8 +70,8 @@ add name=openclash-dns code=6 value=0xC0A85804
 如果不存在，创建：
 
 ```routeros
-/ip/dhcp-server/option/add name=openclash-gateway code=3 value=0xC0A85804
-/ip/dhcp-server/option/add name=openclash-dns code=6 value=0xC0A85804
+/ip/dhcp-server/option/add name=openclash-gateway code=3 value=0xC0A858A9
+/ip/dhcp-server/option/add name=openclash-dns code=6 value=0xC0A858A9
 ```
 
 ### 3. 固定 lease 并绑定 option
@@ -78,14 +80,14 @@ add name=openclash-dns code=6 value=0xC0A85804
 
 ```routeros
 /ip/dhcp-server/lease/make-static [find where active-address=192.168.88.154]
-/ip/dhcp-server/lease/set [find where address=192.168.88.154] dhcp-option=openclash-gateway,openclash-dns comment="via OpenClash gateway 192.168.88.4"
+/ip/dhcp-server/lease/set [find where address=192.168.88.154] dhcp-option=openclash-gateway,openclash-dns comment="via OpenClash gateway 192.168.88.169"
 ```
 
 以 `192.168.88.155` 为例：
 
 ```routeros
 /ip/dhcp-server/lease/make-static [find where active-address=192.168.88.155]
-/ip/dhcp-server/lease/set [find where address=192.168.88.155] dhcp-option=openclash-gateway,openclash-dns comment="via OpenClash gateway 192.168.88.4"
+/ip/dhcp-server/lease/set [find where address=192.168.88.155] dhcp-option=openclash-gateway,openclash-dns comment="via OpenClash gateway 192.168.88.169"
 ```
 
 ### 4. 让客户端续租
@@ -104,8 +106,8 @@ ipconfig /all
 
 续租后应看到：
 
-- `Default Gateway . . . : 192.168.88.4`
-- `DNS Servers . . . . . : 192.168.88.4`
+- `Default Gateway . . . : 192.168.88.169`
+- `DNS Servers . . . . . : 192.168.88.169`
 
 ## 删除设备
 
@@ -175,8 +177,8 @@ dhcp-option=openclash-gateway,openclash-dns
 应看到：
 
 ```text
-openclash-gateway code=3 raw-value="c0a85804"
-openclash-dns code=6 raw-value="c0a85804"
+openclash-gateway code=3 raw-value="c0a858a9"
+openclash-dns code=6 raw-value="c0a858a9"
 ```
 
 确认旧策略已清除：
@@ -198,6 +200,6 @@ openclash-dns code=6 raw-value="c0a85804"
 ## 注意事项
 
 - DHCP lease 的 `dhcp-option` 优先级高于 DHCP network，所以可以只影响指定设备。
-- 不要直接修改 `/ip dhcp-server network` 为 `gateway=192.168.88.4 dns-server=192.168.88.4`，除非你希望整个 LAN 都默认走 OpenClash。
-- 旧的 RouterOS 策略路由方案适用于“客户端网关仍是 `192.168.88.1`，由 RouterOS 转发到 OpenClash”的设计；现在改成“客户端直接以 `192.168.88.4` 为网关”，因此不再需要 `to-openclash`。
+- 不要直接修改 `/ip dhcp-server network` 为 `gateway=192.168.88.169 dns-server=192.168.88.169`，除非你希望整个 LAN 都默认走 OpenClash。
+- 旧的 RouterOS 策略路由方案适用于“客户端网关仍是 `192.168.88.1`，由 RouterOS 转发到 OpenClash”的设计；现在改成“客户端直接以 `192.168.88.169` 为网关”，因此不再需要 `to-openclash`。
 - 如果客户端还显示 `192.168.88.1`，通常是没有续租，不是 RouterOS 配置未生效。

@@ -90,4 +90,6 @@ netbox_token = os.getenv('NETBOX_API_TOKEN')
 | `ROUTER_HOST` | 主路由 IP 地址 | - |
 | `ROUTER_USER` | RouterOS 用户名 | - |
 | `ROUTER_PASSWORD` | RouterOS 密码 | - |
-| `OPENCLASH_HOST` | OpenClash 网关地址 | - |
+| `MSF_HOST` | 运行中的 MSF 测试/兼容网关地址 | - |
+| `MSF_FAKE_IP_CIDR` | MSF fake-ip 网段 | - |
+| `OPENCLASH_HOST` | 单设备兼容用 OpenClash 网关地址 | - |

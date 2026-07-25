@@ -1,5 +1,7 @@
 # OSPF + sing-box 快速部署指南
 
+> 状态：历史参考。OSPF 分流方案已放弃，PaoPaoDNS/PaoPaoGateWay 也已删除。配套部署脚本已默认拒绝执行。
+
 ## 部署概述
 
 本指南使用自动化脚本在 PVE (192.168.88.228) 上部署 OSPF + sing-box 智能分流方案。

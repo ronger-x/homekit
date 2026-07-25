@@ -1,5 +1,7 @@
 # sing-box 配置指南（用于 OSPF 智能分流）
 
+> 状态：历史参考。OSPF 分流方案已停用，PaoPaoDNS/PaoPaoGateWay 也已删除。
+
 ## 概述
 
 本文档说明如何在 OSPF 智能分流容器中配置 sing-box 作为隧道客户端，替代 WireGuard 方案。

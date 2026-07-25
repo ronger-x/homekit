@@ -1,5 +1,7 @@
 # OSPF 智能分流部署指南
 
+> 状态：历史参考。OSPF 分流方案已放弃，PaoPaoDNS/PaoPaoGateWay 也已删除。
+
 ## 概述
 
 本文档记录基于 Proxmox VE (PVE) LXC 容器 + BIRD + OSPF 实现国内外流量智能分流的完整部署流程。

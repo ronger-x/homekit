@@ -1,8 +1,13 @@
 #!/bin/bash
+# 历史参考：OSPF 分流方案已停用，不代表当前网络架构。
 # OSPF + sing-box 智能分流部署脚本
 # 使用方法: 在 PVE 主机上执行此脚本
 
 set -e
+
+echo "错误: OSPF 分流方案已停用，此脚本仅保留为历史参考。" >&2
+echo "请先核对 RouterOS、DHCP 和现有网关状态。" >&2
+exit 1
 
 echo "=========================================="
 echo "OSPF + sing-box 智能分流部署脚本"

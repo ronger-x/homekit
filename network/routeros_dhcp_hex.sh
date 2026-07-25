@@ -9,8 +9,8 @@ Usage:
 Convert an IPv4 address to the RouterOS DHCP option hex format.
 
 Examples:
-  routeros_dhcp_hex.sh 192.168.88.4
-  # 0xC0A85804
+  routeros_dhcp_hex.sh 192.168.88.169
+  # 0xC0A858A9
 
   routeros_dhcp_hex.sh 192.168.88.113
   # 0xC0A85871

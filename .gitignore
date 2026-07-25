@@ -8,6 +8,9 @@
 .env
 .env.local
 
+### Codex scratch work (never store uncommitted project work here) ###
+.codex-tmp/
+
 # Network topology visualization (auto-generated)
 homekit-network*.html
 homekit-network*.json

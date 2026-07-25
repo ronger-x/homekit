@@ -2,17 +2,38 @@
 
 `homekit` 是一个为个人或家庭实验室（home-lab）设计的运维工具与脚本集合，目标是简化常见的网络运维、设备管理、自动化与诊断任务。仓库包含若干独立的小工具（scripts 和 utilities），可按需组合用于备份、唤醒远程主机、检查网络状态以及其他便捷运维工作。
 
-组件示例:
+## 当前维护内容
 
+当前现场：RouterOS 全局 DHCP 下发网关/DNS `192.168.88.1`；MSF VMID `117` 在 `192.168.88.222` 运行，RouterOS 保留 `28.0.0.0/8 -> 192.168.88.222` 路由。MSF 仍是测试/兼容路径，不据此认定为全局生产 DNS。PaoPaoDNS/PaoPaoGateWay 的 VMID `115`/`116` 已删除。
+
+- [`docs/powershell-posh-git.md`](docs/powershell-posh-git.md) — PowerShell 7 中 posh-git 的安装、按需加载配置、启动耗时验证与故障排查。
 - `network/wol_plus.sh` — 一个增强的 Wake-on-LAN 工具，支持配置文件别名、ARP 扫描、通过指定接口发送、交互式菜单以及自动检测并尝试安装 `netcat`。
-- `network/routeros_dhcp_hex.sh` — 将 IPv4 地址转换为 RouterOS DHCP option 使用的十六进制格式，例如 `192.168.88.4 -> 0xC0A85804`。
+- `network/routeros_dhcp_hex.sh` — 将 IPv4 地址转换为 RouterOS DHCP option 使用的十六进制格式，例如 `192.168.88.169 -> 0xC0A858A9`。
+- `network/msf-test-vm.md` — MSF 测试 VM 维护手册，记录 VMID `117`、`192.168.88.222` WebUI、初始化步骤、RouterOS 单设备测试接入和回滚方式。
+- `network/ubuntu-2404-vm.md` — Ubuntu 24.04 通用 VM 维护记录，记录 VMID `112`、`192.168.88.39`、8C16G/200G `storage1` 规格、cloud-init、guest agent 和 NovaReel2 dev service 资源保护。
+- `network/onedev-vm-migration.md` — OneDev 迁移维护记录，记录 VMID `119`、`192.168.88.37`、4C8G、RouterOS 走 `192.168.88.169` 网关/DNS、`/opt/docker/` 数据迁移和验证结果。
+- `network/microsoft-rewards-script-docker.md` — Microsoft Rewards Script 在 `192.168.88.243` 上的 Docker 部署手册，包含 `.env`、`compose.override.yaml`、cron、日志、更新和备份流程。
+- `network/microsoft-rewards-compose.override.yaml` — Microsoft Rewards Script 的 88.243 Compose 覆盖模板，用于透传 `.env` 可选变量并默认禁止未配置账号时立即运行。
 - `network/routeros-openclash-dhcp.md` — RouterOS 上按单设备下发 OpenClash 网关/DNS 的维护手册，包含添加、删除、验证和清理旧策略的步骤。
-- `network/ospf-split-routing-deployment.md` — **OSPF 智能分流部署指南**，基于 PVE LXC 容器 + BIRD + sing-box 实现国内外流量自动分流，替代 Mangle 策略路由方案。
-- `network/ospf-split-routing-maintenance.md` — **OSPF 智能分流维护手册**，包含日常监控、IP 列表更新、故障排查、性能监控等运维操作。
-- `network/sing-box-configuration-guide.md` — **sing-box 配置指南**，详细说明多协议代理配置、节点管理、自动选择、故障排查等。
-- `network/bird-ospf-template.conf` — BIRD 2.x OSPF 配置模板（支持 OSPFv2/v3 双栈）。
-- `network/sing-box-template.json` — sing-box 配置模板（支持 Shadowsocks/VMess/Trojan/VLESS 等多协议）。
-- `network/nftables-ospf.conf` — nftables 防火墙配置模板（用于 OSPF 容器 NAT 和转发）。
+
+## 历史参考
+
+以下资料记录已经停用的 OSPF、Mangle PBR 和旧 DNS 分流方案，不应作为当前部署入口。PaoPaoDNS/PaoPaoGateWay 资料已直接删除，不再作为回滚路径保留：
+
+- `URGENT-FIX-TAILSCALE.md` — OSPF 路由覆盖 Tailscale 网段时的历史应急记录。
+- `deploy-ospf-singbox.sh` — 历史 OSPF + sing-box 部署脚本。
+- `network/QUICKSTART-OSPF-SINGBOX.md` — 历史 OSPF + sing-box 快速部署指南。
+- `network/ospf-split-routing-deployment.md` — 历史 OSPF 智能分流部署指南。该方案已放弃，仅作参考和回滚资料。
+- `network/ospf-split-routing-maintenance.md` — 历史 OSPF 智能分流维护手册。该方案已放弃，仅作参考。
+- `network/sing-box-configuration-guide.md` — sing-box 配置指南，主要服务于历史 OSPF 容器方案。
+- `network/bird-ospf-template.conf` — BIRD 2.x OSPF 配置模板（历史参考）。
+- `network/sing-box-template.json` — sing-box 配置模板（历史参考）。
+- `network/nftables-ospf.conf` — nftables 防火墙配置模板（历史 OSPF 容器参考）。
+- `network/wireguard-template.conf` — WireGuard 配置模板（历史 OSPF 容器参考）。
+- `docs/dns-stack-deployment.md` — 旧 AdGuard Home + MosDNS 分流部署记录。
+- `network/routeros-cn-policy-routing.md` — 旧 Mangle 策略路由部署指南。
+- `network/routeros-cn-policy-deployment-report.md` — 旧 Mangle 策略路由部署结果。
+- `network/routeros-cn-policy-full.rsc` — 旧 Mangle 策略路由配置快照，不要直接导入当前 RouterOS。
 
 ## 下载脚本（快速命令）
 将脚本下载到当前目录并赋可执行权限：
@@ -74,6 +95,7 @@ wol_plus.sh -a pc2 00:11:22:33:44:66 -i eth0
 
 ## 目录结构
 
+- `docs/` — 存放通用运维、终端环境和部署配置文档。
 - `network/` — 存放与网络相关的脚本，例如 `wol_plus.sh`。
 
 ## 快速开始

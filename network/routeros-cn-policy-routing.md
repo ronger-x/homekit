@@ -1,5 +1,7 @@
 # RouterOS 策略路由配置 - 国内直连海外走代理
 
+> 状态：历史参考。Mangle PBR 已停用，PaoPaoDNS/PaoPaoGateWay 也已删除。
+
 ## 方案说明
 
 使用 RouterOS 策略路由实现智能分流，避免全网流量经过代理设备导致国内访问变慢。
@@ -351,7 +353,7 @@ ssh admin@192.168.88.1
 
 ## 与 DNS 分流方案的配合
 
-当前方案已部署 AdGuard Home + MosDNS DNS 分流，结合策略路由实现完整的智能分流：
+本历史方案部署时曾配合 AdGuard Home + MosDNS DNS 分流，结合策略路由实现完整的智能分流：
 
 ### 完整流量路径
 
