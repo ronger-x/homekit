@@ -13,7 +13,7 @@ The scripts assume a specific network topology:
 - **RouterOS gateway**: `192.168.88.1` (MikroTik RouterOS 7.x)
 - **PVE host**: `192.168.88.228`
 - **MSF VM**: VMID `117`, `192.168.88.222` (running test/compatibility DNS and fake-ip gateway)
-- **OpenClash gateway**: `192.168.88.169` (legacy transparent proxy)
+- **OpenClash gateway**: `192.168.88.169` (legacy transparent proxy; `192.168.88.4` is retired)
 - **AdGuard/MosDNS DNS server**: `192.168.88.243` (legacy DNS stack and subscription service host)
 - **Retired PaoPao VMs**: VMID `115` / `116` and addresses `192.168.88.220` / `192.168.88.221` have been deleted
 - **LAN subnet**: `192.168.88.0/24`
