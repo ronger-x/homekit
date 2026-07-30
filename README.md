@@ -7,7 +7,7 @@
 当前现场：RouterOS 全局 DHCP 下发网关/DNS `192.168.88.1`；MSF VMID `117` 在 `192.168.88.222` 运行，RouterOS 保留 `28.0.0.0/8 -> 192.168.88.222` 路由。MSF 仍是测试/兼容路径，不据此认定为全局生产 DNS。PaoPaoDNS/PaoPaoGateWay 的 VMID `115`/`116` 已删除。
 
 - [`docs/powershell-posh-git.md`](docs/powershell-posh-git.md) — PowerShell 7 中 posh-git 的安装、按需加载配置、启动耗时验证与故障排查。
-- [`powershell/Install-TerminalExperience.ps1`](powershell/Install-TerminalExperience.ps1) — 在 PowerShell 7 中安装 PSFzf、部署命令补全与历史记录配置，并以受管块安全写入 Profile；可在不同 PC 上重复执行。
+- [`powershell/Install-TerminalExperience.ps1`](powershell/Install-TerminalExperience.ps1) — 在 PowerShell 7 中安装 PSFzf、posh-git 与 fzf，部署命令补全、历史记录和 Git 提示符懒加载配置，并以受管块安全写入 Profile；可在不同 PC 上重复执行。
 - `network/wol_plus.sh` — 一个增强的 Wake-on-LAN 工具，支持配置文件别名、ARP 扫描、通过指定接口发送、交互式菜单以及自动检测并尝试安装 `netcat`。
 - `network/routeros_dhcp_hex.sh` — 将 IPv4 地址转换为 RouterOS DHCP option 使用的十六进制格式，例如 `192.168.88.169 -> 0xC0A858A9`。
 - `network/msf-test-vm.md` — MSF 测试 VM 维护手册，记录 VMID `117`、`192.168.88.222` WebUI、初始化步骤、RouterOS 单设备测试接入和回滚方式。

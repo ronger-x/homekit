@@ -2,7 +2,9 @@
 param(
     [string]$ProfilePath = $PROFILE.CurrentUserCurrentHost,
     [switch]$SkipFzfInstall,
-    [switch]$SkipModuleInstall
+    [switch]$SkipModuleInstall,
+    [switch]$SkipPoshGitInstall,
+    [string]$PoshGitVersion
 )
 
 Set-StrictMode -Version Latest
@@ -11,8 +13,12 @@ $ErrorActionPreference = 'Stop'
 $managedBlockStart = '# >>> homekit-terminal-experience >>>'
 $managedBlockEnd = '# <<< homekit-terminal-experience <<<'
 $sourceConfiguration = Join-Path $PSScriptRoot 'TerminalExperience.ps1'
+$poshGitConfiguration = Join-Path $PSScriptRoot 'PoshGitLazyLoad.ps1'
 $configurationDirectory = Join-Path $HOME '.config\homekit\powershell'
 $installedConfiguration = Join-Path $configurationDirectory 'TerminalExperience.ps1'
+$installedPoshGitConfiguration = Join-Path $configurationDirectory 'PoshGitLazyLoad.ps1'
+$script:ProfileWasCreated = $false
+$script:ProfileBackedUp = $false
 
 function Write-Status {
     param([string]$Message)
@@ -23,15 +29,19 @@ function Write-Status {
 function Backup-Profile {
     param([string]$Path)
 
-    if (Test-Path -LiteralPath $Path) {
+    if (-not $script:ProfileWasCreated -and -not $script:ProfileBackedUp -and (Test-Path -LiteralPath $Path)) {
         $backupPath = "$Path.backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
         Copy-Item -LiteralPath $Path -Destination $backupPath
+        $script:ProfileBackedUp = $true
         Write-Status "已备份 Profile：$backupPath"
     }
 }
 
 if (-not (Test-Path -LiteralPath $sourceConfiguration -PathType Leaf)) {
     throw "找不到配置模板：$sourceConfiguration"
+}
+if (-not (Test-Path -LiteralPath $poshGitConfiguration -PathType Leaf)) {
+    throw "找不到 posh-git 配置模板：$poshGitConfiguration"
 }
 
 if (-not $SkipModuleInstall) {
@@ -49,6 +59,35 @@ if (-not $SkipModuleInstall) {
     elseif ($PSCmdlet.ShouldProcess('PSGallery', '安装 PSFzf')) {
         Install-PSResource -Name PSFzf -Repository PSGallery -Scope CurrentUser -TrustRepository
         Write-Status '已安装 PSFzf。'
+    }
+}
+
+if (-not $SkipPoshGitInstall) {
+    if (-not (Get-Command Install-PSResource -ErrorAction SilentlyContinue)) {
+        throw '未找到 Install-PSResource。请先安装 Microsoft.PowerShell.PSResourceGet。'
+    }
+
+    $poshGit = Get-InstalledPSResource -Name posh-git -ErrorAction SilentlyContinue |
+        Sort-Object Version -Descending |
+        Select-Object -First 1
+
+    if ($poshGit) {
+        Write-Status "posh-git 已安装：$($poshGit.Version)"
+    }
+    elseif ($PSCmdlet.ShouldProcess('PSGallery', '安装 posh-git')) {
+        $poshGitInstallParameters = @{
+            Name            = 'posh-git'
+            Repository      = 'PSGallery'
+            Scope           = 'CurrentUser'
+            TrustRepository = $true
+        }
+        if ($PoshGitVersion) {
+            $poshGitInstallParameters.Version = $PoshGitVersion
+        }
+
+        Install-PSResource @poshGitInstallParameters
+        $versionLabel = if ($PoshGitVersion) { $PoshGitVersion } else { '最新版' }
+        Write-Status "已安装 posh-git：$versionLabel"
     }
 }
 
@@ -77,6 +116,10 @@ if ($PSCmdlet.ShouldProcess($installedConfiguration, '部署终端配置')) {
     Copy-Item -LiteralPath $sourceConfiguration -Destination $installedConfiguration -Force
     Write-Status "已部署配置：$installedConfiguration"
 }
+if ($PSCmdlet.ShouldProcess($installedPoshGitConfiguration, '部署 posh-git 懒加载配置')) {
+    Copy-Item -LiteralPath $poshGitConfiguration -Destination $installedPoshGitConfiguration -Force
+    Write-Status "已部署配置：$installedPoshGitConfiguration"
+}
 
 $profileDirectory = Split-Path -Parent $ProfilePath
 if (-not (Test-Path -LiteralPath $profileDirectory)) {
@@ -88,14 +131,18 @@ if (-not (Test-Path -LiteralPath $profileDirectory)) {
 if (-not (Test-Path -LiteralPath $ProfilePath)) {
     if ($PSCmdlet.ShouldProcess($ProfilePath, '创建 Profile')) {
         New-Item -ItemType File -Path $ProfilePath -Force | Out-Null
+        $script:ProfileWasCreated = $true
     }
 }
 
-$profileContent = if (Test-Path -LiteralPath $ProfilePath) {
-    Get-Content -LiteralPath $ProfilePath -Raw
+if (Test-Path -LiteralPath $ProfilePath) {
+    $profileContent = Get-Content -LiteralPath $ProfilePath -Raw
+    if ($null -eq $profileContent) {
+        $profileContent = ''
+    }
 }
 else {
-    ''
+    $profileContent = [string]::Empty
 }
 $managedBlockPattern = "(?ms)^$([regex]::Escape($managedBlockStart)).*?^$([regex]::Escape($managedBlockEnd))\s*"
 $managedBlock = @"
@@ -132,7 +179,47 @@ else {
     Write-Status 'Profile 已包含当前受管配置。'
 }
 
+$poshGitMarkerStart = '# >>> homekit-posh-git-lazy-load >>>'
+$poshGitMarkerEnd = '# <<< homekit-posh-git-lazy-load <<<'
+$poshGitBlockPattern = "(?ms)^$([regex]::Escape($poshGitMarkerStart)).*?^$([regex]::Escape($poshGitMarkerEnd))\s*"
+$poshGitBlock = @"
+$poshGitMarkerStart
+# 由 homekit/powershell/Install-TerminalExperience.ps1 管理。
+`$poshGitConfigurationPath = Join-Path `$HOME '.config\homekit\powershell\PoshGitLazyLoad.ps1'
+if (Test-Path -LiteralPath `$poshGitConfigurationPath) {
+    . `$poshGitConfigurationPath
+}
+$poshGitMarkerEnd
+"@
+if (Test-Path -LiteralPath $ProfilePath) {
+    $profileContent = Get-Content -LiteralPath $ProfilePath -Raw
+    if ($null -eq $profileContent) {
+        $profileContent = ''
+    }
+}
+else {
+    $profileContent = [string]::Empty
+}
+$hasExistingPoshGitLazyLoad = Select-String -LiteralPath $ProfilePath -Pattern 'PoshGitLoadAttempted|Import-Module posh-git.*ArgumentList' -Quiet -ErrorAction SilentlyContinue
+
+if ($profileContent -match $poshGitBlockPattern) {
+    if ($Matches[0].Trim() -cne $poshGitBlock.Trim() -and $PSCmdlet.ShouldProcess($ProfilePath, '更新 posh-git 懒加载配置')) {
+        Backup-Profile -Path $ProfilePath
+        $updatedProfileContent = [regex]::Replace($profileContent, $poshGitBlockPattern, "$poshGitBlock`r`n")
+        Set-Content -LiteralPath $ProfilePath -Value $updatedProfileContent -Encoding utf8NoBOM
+        Write-Status "已更新 Profile：$ProfilePath（posh-git 懒加载）"
+    }
+}
+elseif ($hasExistingPoshGitLazyLoad) {
+    Write-Status '检测到已有 posh-git 懒加载配置，未重复写入。'
+}
+elseif ($PSCmdlet.ShouldProcess($ProfilePath, '写入 posh-git 懒加载配置')) {
+    Backup-Profile -Path $ProfilePath
+    Add-Content -LiteralPath $ProfilePath -Value "`r`n$poshGitBlock`r`n" -Encoding utf8NoBOM
+    Write-Status "已更新 Profile：$ProfilePath（posh-git 懒加载）"
+}
+
 Write-Host ''
 Write-Host '完成。请新开一个 PowerShell 7 窗口验证：' -ForegroundColor Green
-Write-Host '  Get-Module PSReadLine, PSFzf'
+Write-Host '  Get-Module PSReadLine, PSFzf, posh-git'
 Write-Host '  Ctrl+R  搜索历史命令'
